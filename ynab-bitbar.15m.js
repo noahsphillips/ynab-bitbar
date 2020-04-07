@@ -1,16 +1,11 @@
 #!/usr/bin/env /usr/local/bin/node
 
-require("dotenv").config();
-
 const ynab = require("ynab");
 const moment = require("moment");
 const bitbar = require("bitbar");
 
-const API_KEY = process.env.YNAB_KEY;
+const API_KEY = "APIKEY";
 const ynabAPI = new ynab.API(API_KEY);
-
-// Get Args
-// const [, , ...args] = process.argv;
 
 const currentMonth = moment().startOf("month");
 

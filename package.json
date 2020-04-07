@@ -5,9 +5,7 @@
   "main": "ynab-bitbar.15m.js",
   "dependencies": {
     "bitbar": "^1.3.1",
-    "dotenv": "^8.2.0",
     "moment": "^2.24.0",
-    "nexe": "^3.3.2",
     "ynab": "^1.18.0"
   },
   "devDependencies": {},
