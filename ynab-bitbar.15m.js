@@ -5,6 +5,18 @@ const moment = require("moment");
 const bitbar = require("bitbar");
 
 const API_KEY = "APIKEY";
+
+if ((API_KEY = "APIKEY")) {
+  bitbar([
+    {
+      text: "YNAB: Enter your API Key",
+      color: bitbar.darkMode ? "white" : "red",
+      dropdown: false,
+    },
+  ]);
+  process.exitCode = 1;
+}
+
 const ynabAPI = new ynab.API(API_KEY);
 
 const currentMonth = moment().startOf("month");
