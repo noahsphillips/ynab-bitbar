@@ -36,15 +36,15 @@ echo "Dependencies installed."
 
 # Create the symlink if it doesn't exist
 cd ..
-if ! [ -L "./ynab-bitbar.30s.js" ]; then
+if ! [ -L "./ynab-bitbar.15m.js" ]; then
 	echo "Linking..."
-	ln -s ynab-bitbar/ynab-bitbar.30s.js
+	ln -s ynab-bitbar/ynab-bitbar.15m.js
 	echo "Linked."
 fi
 
 # Refresh the plugin
 echo "Refreshing plugin..."
-open "bitbar://refreshPlugin?name=ynab-bitbar.30s.js"
+open "bitbar://refreshPlugin?name=ynab-bitbar.15m.js"
 echo "Plugin refreshed."
 
 # Delete this script!
