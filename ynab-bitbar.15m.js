@@ -6,7 +6,7 @@ const bitbar = require("bitbar");
 
 const API_KEY = "APIKEY";
 
-if ((API_KEY = "APIKEY")) {
+if (API_KEY === "APIKEY") {
   bitbar([
     {
       text: "YNAB: Enter your API Key",
