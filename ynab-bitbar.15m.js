@@ -4,8 +4,7 @@ const ynab = require("ynab");
 const moment = require("moment");
 const bitbar = require("bitbar");
 
-const API_KEY =
-  "e770f434ba1d4ef46d02b490d9d7bc4c01d4d9821e9fc65fe53b01f5457d0b03";
+const API_KEY = "APIKEY";
 
 if (API_KEY === "APIKEY") {
   bitbar([
@@ -84,10 +83,17 @@ const currentMonth = moment().startOf("month");
     },
     ...theBudget.accounts
       .filter(({ closed, deleted }) => !closed && !deleted)
+      .sort((a, b) => a.name.localeCompare(b.name))
       .map(({ balance, id, name }) => ({
-        text: `${name} - ${formatter.format(balance / 1000)}`,
+        text: `${name}: ${formatter.format(balance / 1000)}`,
+        color: balance < 0 ? "red" : bitbar.darkMode ? "white" : "black",
         href: `https://app.youneedabudget.com/${theBudget.id}/accounts/${id}`,
       })),
+    bitbar.separator,
+    {
+      text: "Refresh YNAB",
+      refresh: true,
+    },
   ]);
 })();
 
