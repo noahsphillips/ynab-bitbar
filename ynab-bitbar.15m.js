@@ -4,7 +4,8 @@ const ynab = require("ynab");
 const moment = require("moment");
 const bitbar = require("bitbar");
 
-const API_KEY = "APIKEY";
+const API_KEY =
+  "e770f434ba1d4ef46d02b490d9d7bc4c01d4d9821e9fc65fe53b01f5457d0b03";
 
 if (API_KEY === "APIKEY") {
   bitbar([
@@ -14,7 +15,7 @@ if (API_KEY === "APIKEY") {
       dropdown: false,
     },
   ]);
-  process.exitCode = 1;
+  return (process.exitCode = 1);
 }
 
 const ynabAPI = new ynab.API(API_KEY);
@@ -27,8 +28,25 @@ const currentMonth = moment().startOf("month");
 
   const firstBudgetID = budgets[0] && budgets[0].id;
   const budgetResponse = await ynabAPI.budgets.getBudgetById(firstBudgetID);
+  const theBudget = budgetResponse.data.budget;
+  const transRespone = await ynabAPI.transactions.getTransactions(theBudget.id);
+  const trans = transRespone.data.transactions;
 
-  const months = budgetResponse.data.budget.months;
+  const uncategorizedTransactions = trans.filter(
+    ({ date, category_id, approved, payee_name, transfer_account_id }) =>
+      moment(date).isBetween(
+        currentMonth,
+        moment(currentMonth).endOf("month")
+      ) &&
+      (!category_id || !approved) &&
+      payee_name !== "Starting Balance" &&
+      !transfer_account_id
+  );
+  const hasTransactions = !!uncategorizedTransactions.length;
+
+  const groupedTrans = groupTrans(uncategorizedTransactions, "account_id");
+
+  const months = theBudget.months;
   const theMonth = months.find(
     ({ month }) => month === currentMonth.format("YYYY-MM-DD")
   );
@@ -42,9 +60,43 @@ const currentMonth = moment().startOf("month");
     {
       text: `YNAB: (${formatter.format(
         theMonth.to_be_budgeted / 1000
-      )}) / ${formatter.format(theMonth.budgeted / 1000)}`,
-      color: bitbar.darkMode ? "white" : "red",
+      )}) / ${formatter.format(theMonth.budgeted / 1000)}${
+        hasTransactions ? " \u25CF" : ""
+      }`,
+      color: bitbar.darkMode ? "white" : "black",
       dropdown: false,
     },
+    bitbar.separator,
+    ...[
+      hasTransactions && {
+        text: "Outstanding Transactions",
+      },
+      ...Object.entries(groupedTrans).map(([account_id, values]) => ({
+        text: `${values[0].account_name}: ${values.length} transaction${
+          values.length > 1 ? "s" : ""
+        }`,
+        href: `https://app.youneedabudget.com/${theBudget.id}/accounts/${account_id}`,
+      })),
+    ].filter(Boolean),
+    bitbar.separator,
+    {
+      text: "Linked Accounts",
+    },
+    ...theBudget.accounts
+      .filter(({ closed, deleted }) => !closed && !deleted)
+      .map(({ balance, id, name }) => ({
+        text: `${name} - ${formatter.format(balance / 1000)}`,
+        href: `https://app.youneedabudget.com/${theBudget.id}/accounts/${id}`,
+      })),
   ]);
 })();
+
+function groupTrans(arr, property) {
+  return arr.reduce(function (memo, x) {
+    if (!memo[x[property]]) {
+      memo[x[property]] = [];
+    }
+    memo[x[property]].push(x);
+    return memo;
+  }, {});
+}
