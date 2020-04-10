@@ -91,6 +91,21 @@ const currentMonth = moment().startOf("month");
       })),
     bitbar.separator,
     {
+      text: `Net Worth: ${formatter.format(
+        theBudget.accounts.reduce((a, b) => a + b.balance, 0) / 1000
+      )}`,
+    },
+    {
+      text: `Available Cash: ${formatter.format(
+        theBudget.accounts
+          .filter(
+            ({ type }) => type === "checking" || type === "savings" || "cash"
+          )
+          .reduce((a, b) => a + b.balance, 0) / 1000
+      )}`,
+    },
+    bitbar.separator,
+    {
       text: "Refresh YNAB",
       refresh: true,
     },
